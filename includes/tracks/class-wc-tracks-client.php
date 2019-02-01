@@ -86,9 +86,47 @@ class WC_Tracks_Client {
 	}
 
 	/**
-	 * Grabs the user's anon id from cookies, or generates and sets a new one
+	 * Get a user's identity to send to Tracks. If Jetpack exists, default to its implementation.
 	 *
-	 * @TODO: Determine the best way to identify sites/users with/without Jetpack connection.
+	 * @param int $user_id User id.
+	 * @return array Identity properties.
+	 */
+	public static function get_identity( $user_id ) {
+		if ( class_exists( 'Jetpack' ) ) {
+			include_once( ABSPATH . 'wp-content/plugins/jetpack/_inc/lib/tracks/client.php' );
+
+			if ( function_exists( 'jetpack_tracks_get_identity' ) ) {
+				return jetpack_tracks_get_identity( $user_id );
+			}
+		}
+
+		// Start with a previously set cookie.
+		$anon_id = isset( $_COOKIE['tk_ai'] ) ? $_COOKIE['tk_ai'] : false;
+
+		// If there is no cookie, apply a saved id.
+		if ( ! $anon_id ) {
+			$anon_id = get_user_meta( $user_id, 'woo_tracks_anon_id', true );
+		}
+
+		// If an id is still not found, create one and save it.
+		if ( ! $anon_id ) {
+			$anon_id = self::get_anon_id();
+			update_user_meta( $user_id, 'woo_tracks_anon_id', $anon_id );
+		}
+
+		if ( ! isset( $_COOKIE['tk_ai'] ) && ! headers_sent() ) {
+			setcookie( 'tk_ai', $anon_id );
+		}
+
+		return array(
+			'_ut' => 'anon',
+			'_ui' => $anon_id,
+		);
+
+	}
+
+	/**
+	 * Grabs the user's anon id from cookies, or generates and sets a new one
 	 *
 	 * @return string An anon id for the user
 	 */
@@ -98,7 +136,7 @@ class WC_Tracks_Client {
 		if ( ! isset( $anon_id ) ) {
 
 			// Did the browser send us a cookie?
-			if ( isset( $_COOKIE['tk_ai'] ) && preg_match( '#^[A-Za-z0-9+/=]{24}$#', $_COOKIE['tk_ai'] ) ) {
+			if ( isset( $_COOKIE['tk_ai'] ) ) {
 				$anon_id = $_COOKIE['tk_ai'];
 			} else {
 
@@ -110,7 +148,7 @@ class WC_Tracks_Client {
 					$binary .= chr( wp_rand( 0, 255 ) );
 				}
 
-				$anon_id = 'jetpack:' . base64_encode( $binary );
+				$anon_id = 'woo:' . base64_encode( $binary );
 
 				if ( ! headers_sent()
 					&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
