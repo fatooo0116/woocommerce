@@ -36,23 +36,24 @@ function track_woo_usage() {
 	 * Don't track users who haven't opted-in to tracking or if a filter
 	 * has been applied to turn it off.
 	 */
-	if (
-		'yes' === get_option( 'woocommerce_allow_tracking' ) &&
-		apply_filters( 'woocommerce_apply_user_tracking', true )
-	) {
+	$allow_tracking = 'yes' === get_option( 'woocommerce_allow_tracking' ) &&
+		apply_filters( 'woocommerce_apply_user_tracking', true );
+
+	if ( $allow_tracking ) {
 		wp_enqueue_script( 'woo-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
-		// @todo Which namespace?
-		wc_enqueue_js( "
-			window.recordEvent = function( event, eventProperties ) {
-				window._tkq = window._tkq || [];
-				window._tkq.push( [ 'recordEvent', event, eventProperties ] );
-			}
-		" );
-	} else {
-		wc_enqueue_js( "
-			window.recordEvent = function() {}
-		" );
 	}
+
+	$early_return = $allow_tracking ? 'false' : 'true';
+	wc_enqueue_js( "
+		window.wcSettings = window.wcSettings || {};
+		window.wcSettings.recordEvent = function( event, eventProperties ) {
+			if ( " . $early_return . " ) {
+				return;
+			}
+			window._tkq = window._tkq || [];
+			window._tkq.push( [ 'recordEvent', event, eventProperties ] );
+		}
+	" );
 
 	add_action( 'edit_post', 'woocommerce_tracks_product_updated', 10, 2 );
 }
