@@ -31,6 +31,18 @@ function track_woo_usage() {
 	if ( ! class_exists( 'WC_Tracks' ) ) {
 		return;
 	}
+
+	/**
+	 * Don't track users who haven't opted-in to tracking or if a filter
+	 * has been applied to turn it off.
+	 */
+	if (
+		'yes' === get_option( 'woocommerce_allow_tracking' ) &&
+		apply_filters( 'woocommerce_apply_user_tracking', true )
+	) {
+		wp_enqueue_script( 'woo-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+	}
+
 	add_action( 'edit_post', 'woocommerce_tracks_product_updated', 10, 2 );
 }
 
