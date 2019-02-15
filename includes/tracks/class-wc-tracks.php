@@ -127,8 +127,8 @@ class WC_Tracks {
 		 * has been applied to turn it off.
 		 */
 		if (
-			'yes' !== get_option( 'woocommerce_allow_site_tracking' ) &&
-			! apply_filters( 'woocommerce_apply_user_tracking', true )
+			'yes' !== get_option( 'woocommerce_allow_tracking' ) &&
+			! apply_filters( 'woocommerce_apply_tracking', true )
 		) {
 			return false;
 		}
