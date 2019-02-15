@@ -41,6 +41,17 @@ function track_woo_usage() {
 		apply_filters( 'woocommerce_apply_user_tracking', true )
 	) {
 		wp_enqueue_script( 'woo-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		// @todo Which namespace?
+		wc_enqueue_js( "
+			window.recordEvent = function( event, eventProperties ) {
+				window._tkq = window._tkq || [];
+				window._tkq.push( [ 'recordEvent', event, eventProperties ] );
+			}
+		" );
+	} else {
+		wc_enqueue_js( "
+			window.recordEvent = function() {}
+		" );
 	}
 
 	add_action( 'edit_post', 'woocommerce_tracks_product_updated', 10, 2 );
