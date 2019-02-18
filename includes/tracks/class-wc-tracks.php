@@ -115,13 +115,6 @@ class WC_Tracks {
 	 * @return bool|WP_Error true for success or WP_Error if the event pixel could not be fired.
 	 */
 	public static function record_event( $event_name, $properties = array() ) {
-		$user = wp_get_current_user();
-
-		// We don't want to track user events during unit tests/CI runs.
-		if ( $user instanceof WP_User && 'wptests_capabilities' === $user->cap_key ) {
-			return false;
-		}
-
 		/**
 		 * Don't track users who haven't opted-in to tracking or if a filter
 		 * has been applied to turn it off.
@@ -130,6 +123,13 @@ class WC_Tracks {
 			'yes' !== get_option( 'woocommerce_allow_tracking' ) &&
 			! apply_filters( 'woocommerce_apply_tracking', true )
 		) {
+			return false;
+		}
+
+		$user = wp_get_current_user();
+
+		// We don't want to track user events during unit tests/CI runs.
+		if ( $user instanceof WP_User && 'wptests_capabilities' === $user->cap_key ) {
 			return false;
 		}
 
