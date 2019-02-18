@@ -52,7 +52,7 @@ class WC_Tracks_Client {
 		// Add the Request Timestamp and URL terminator just before the HTTP request.
 		$pixel .= '&_rt=' . self::build_timestamp() . '&_=_';
 
-		$response = wp_remote_get(
+		$response = wp_safe_remote_get(
 			$pixel,
 			array(
 				'blocking'    => true, // The default, but being explicit here.
