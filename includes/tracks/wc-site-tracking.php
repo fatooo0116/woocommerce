@@ -10,11 +10,11 @@ require_once dirname( __FILE__ ) . '/class-wc-tracks-client.php';
 /**
  * This class adds actions to track usage of WooCommerce.
  *
- * @class   WC_Site_Tracing
+ * @class   WC_Site_Tracking
  * @package WooCommerce/Classes
  */
 
-class WC_Site_Tracing {
+class WC_Site_Tracking {
 	/**
 	 * Send a Tracks event when a product is updated.
 	 *
@@ -54,8 +54,8 @@ class WC_Site_Tracing {
 			return;
 		}
 
-		add_action( 'edit_post', 'woocommerce_tracks_product_updated', 10, 2 );
+		add_action( 'edit_post', array( 'WC_Site_Tracking', 'woocommerce_tracks_product_updated' ), 10, 2 );
 	}
 }
 
-add_action( 'init', array( 'WC_Site_Tracing', 'init' ) );
+add_action( 'init', array( 'WC_Site_Tracking', 'init' ) );
