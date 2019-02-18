@@ -105,7 +105,7 @@ class WC_Tracks_Event {
 			return '';
 		}
 
-		return WC_Tracks_Client::PIXEL . '?' . http_build_query( $validated );
+		return esc_url_raw( WC_Tracks_Client::PIXEL . '?' . http_build_query( $validated ) );
 	}
 
 	/**
