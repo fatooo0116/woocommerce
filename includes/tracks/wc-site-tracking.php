@@ -41,6 +41,8 @@ function track_woo_usage() {
 
 	if ( $allow_tracking ) {
 		wp_enqueue_script( 'woo-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+
+		add_action( 'edit_post', 'woocommerce_tracks_product_updated', 10, 2 );
 	}
 
 	$early_return = $allow_tracking ? 'false' : 'true';
@@ -54,8 +56,6 @@ function track_woo_usage() {
 			window._tkq.push( [ 'recordEvent', event, eventProperties ] );
 		}
 	" );
-
-	add_action( 'edit_post', 'woocommerce_tracks_product_updated', 10, 2 );
 }
 
 add_action( 'init', 'track_woo_usage' );
