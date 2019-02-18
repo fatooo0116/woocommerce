@@ -56,7 +56,6 @@ class WC_Tracks_Client {
 			$pixel,
 			array(
 				'blocking'    => true, // The default, but being explicit here.
-				'timeout'     => 1,
 				'redirection' => 2,
 				'httpversion' => '1.1',
 			)
